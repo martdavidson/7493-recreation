@@ -1,25 +1,36 @@
-import logo from './logo.svg';
-import './App.css';
+import {gql, useSubscription} from "@apollo/client";
+import {useEffect, useState} from "react";
 
-function App() {
+
+export const SOME_SUBSCRIPTION = gql`
+    subscription SomeSubscription($id: String!) {
+      someSubscription(id: $id){
+        id
+      }
+    }
+`;
+
+const App = () => {
+  const [renderTimestamp, setRenderTimestamp] = useState(Date.now());
+
+  useSubscription(SOME_SUBSCRIPTION, {
+    variables: {id: 'someId'},
+    onSubscriptionData(data) {
+      console.log(renderTimestamp);
+    }
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRenderTimestamp(Date.now());
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  },[renderTimestamp]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <div className="App" />
   );
-}
+};
 
 export default App;
